@@ -184,6 +184,7 @@ def catch_user_id():
             pp2_out, pp2_err = pp2.communicate()
             pp2_out = pp2_out.decode('utf8').split('\n')
             service_lightdm = False
+            service_gdm = False
             state_active = False
             active_yes = False
             for l2 in pp2_out:
@@ -202,6 +203,8 @@ def catch_user_id():
                 elif k == 'Service':
                     if 'lightdm' in v:
                         service_lightdm = True
+                    elif 'gdm-password' in v:
+                        service_gdm = True
                     else:
                         break
                 elif k == 'State':
@@ -213,7 +216,7 @@ def catch_user_id():
                     if v == 'yes':
                         active_yes = True
 
-                if service_lightdm and state_active and active_yes:
+                if (service_lightdm or service_gdm) and state_active and active_yes:
                     gecos = getpwnam(user).pw_gecos.split(',')
                     if len(gecos) >= 5 and gecos[4] == 'gooroom-account':
                         return user
